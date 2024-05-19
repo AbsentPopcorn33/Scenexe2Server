@@ -149,7 +149,7 @@ const main = function (tankData, args) {
             }"; let TextColor = "#${
               args.textColor || "FFFFFF"
             }"; let BackColor = "#${args.backColor || "000000"}"</script>` +
-              "<script>document.write(`<body style='color: ${TextColor}; background-color:${BackColor}'><a style='font-family:monospace' href='${'https://scenexe2.io?s=' + new URL(location.href).host}'>${WebPage}<br><a style=font-family:monospace href='https://glitch.com/~spangled-purring-crowberry'>Server Mod By AbsentPopcorn33</body>`)</script>"
+              "<script>document.write(`<body style='color: ${TextColor}; background-color:${BackColor}'><a style='font-family:monospace' href='${'https://scenexe2.io?s=' + new URL(location.href).host}'>${WebPage}<br><a style=font-family:monospace href='https://github.com/AbsentPopcorn33/Scenexe2Server'>Server Mod By AbsentPopcorn33</body>`)</script>"
           ));
     },
     certs =
