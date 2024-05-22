@@ -2,5 +2,6 @@ certs/*
 node_modules/*
 testing-setup/
 .gitignore
-.vscode/launch.json
+.vscode/
 setup-testing.mjs
+logs/

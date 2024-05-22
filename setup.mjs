@@ -13,6 +13,6 @@ const tankData = await got(
   "https://github.com/AbsentPopcorn33/Scenexe2Server/raw/main/tankData.js"
 );
 
-fs.writeFileSync("./testing-setup//Server.js", server.rawBody);
-fs.writeFileSync("./testing-setup//dim-ffa.js", dimffa.rawBody);
-fs.writeFileSync("./testing-setup//tankData.js", tankData.rawBody);
+fs.writeFileSync("./Server.js", server.rawBody);
+fs.writeFileSync("./dim-ffa.js", dimffa.rawBody);
+fs.writeFileSync("./tankData.js", tankData.rawBody);

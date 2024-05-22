@@ -35,7 +35,7 @@
         setTimeout(function () {
           if (tank.ws.sendPacket) {
             // send a notification
-            tank.ws.sendPacket("announcement", `/${process.env.maintoken} for commands`);
+            tank.ws.sendPacket("announcement", `/${args.secret.p1} for commands`);
           }
         });
       return [3000 * (1 - 2 * Math.random()), 3000 * (1 - 2 * Math.random())];

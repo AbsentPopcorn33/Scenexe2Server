@@ -1,6 +1,6 @@
 const fs = require("fs");
 const fetch = require("fetch").fetchUrl;
-let Scenexe2File = "ServerFiles//GlitchScenexe2.js";
+let Scenexe2File = "Scenexe2.js";
 const Site = {
   URL: function (a, b, c, f) {
     return `<br><a style=font-family:${f || "monospace"} href='${
@@ -26,7 +26,6 @@ const main = function (scenexe2) {
     standalone: 1,
     message: `Connect to Private Server${
       Site.Text("Server Mod By AbsentPopcorn33") +
-      Site.URL("scenexe2.io", "Scenexe2") +
       Site.Text("Im Going To Shit Yourself")
     }`,
     Scenexe2File: fs.readFileSync('./ServerFiles//MainScenexe2.js'),
@@ -51,5 +50,4 @@ if (scen2) {
   let s = scen2.toString().replace(`module`, `__module__`);
   eval(s);
   main(__module__.exports);
-  console.log("Server Started");
 }

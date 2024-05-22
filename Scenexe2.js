@@ -2,7 +2,6 @@ const { pack, unpack } = require("msgpackr"),
   WebSocket = require("ws"),
   { WebSocketServer } = WebSocket,
   fs = require("fs"),
-  http = require("https"),
   url = require("url"),
   selfsigned = require("selfsigned"),
   perf_hooks = require("perf_hooks"),
@@ -12,6 +11,13 @@ let secret = {},
 const checkName = function ($) {
   return !0;
 };
+let date = new Date();
+let LogFileDate = [date.toDateString(), date.toTimeString().split(" ")[0]]
+  .join("_")
+  .replace(/ /g, "_")
+  .replace(/:/g, "-");
+!fs.existsSync("./logs//") ? fs.mkdirSync("./logs//") : "";
+fs.writeFileSync(`./logs//Log-${LogFileDate}.txt`, "");
 let createAchievement = function ($) {
   return { time: Math.floor(Date.now() / 1e3), id: $ };
 };
@@ -77,17 +83,25 @@ const access = {
 console.log = new Proxy(console.log, {
   apply: function ($, e, t) {
     let a = new Date();
+    fs.appendFileSync(
+      `./logs//Log-${LogFileDate}.txt`,
+      `[${a.toDateString()} ${a.toTimeString().split(" ")[0]}] ${t
+        .toString()
+        .replace(",", " ")}\n`
+    );
     return (
       t.unshift(`[${a.toDateString()} ${a.toTimeString().split(" ")[0]}]`),
       Reflect.apply($, e, t)
     );
   },
 });
+console.log("Server Started");
 let logEvent = function () {};
 const main = function (tankData, args) {
   process.on("uncaughtException", function ($) {
     console.log($);
   });
+  const http = require(args.Security || "https");
   let sendAchievement = function ($, e) {
       $ &&
         $.ws &&
@@ -147,51 +161,51 @@ const main = function (tankData, args) {
             `<script>let WebPage = "${
               args.message.replace(/\s+/g, " ") || "connect to private server"
             }"; let TextColor = "#${
-              args.textColor || "FFFFFF"
-            }"; let BackColor = "#${args.backColor || "000000"}"</script>` +
-              "<script>document.write(`<body style='color: ${TextColor}; background-color:${BackColor}'><a style='font-family:monospace' href='${'https://scenexe2.io?s=' + new URL(location.href).host}'>${WebPage}<br><a style=font-family:monospace href='https://github.com/AbsentPopcorn33/Scenexe2Server'>Server Mod By AbsentPopcorn33</body>`)</script>"
+              args.textColor || "000000"
+            }"; let BackColor = "#${args.backColor || "FFFFFF"}"; let TextFont = "${args.textFont || "monospace"}"</script>` +
+              "<script>document.write(`<body style='color: ${TextColor}; background-color:${BackColor}; font-family:${TextFont}'><a style='font-family:monospace' href='${'https://scenexe2.io?s=' + new URL(location.href).host}'>${WebPage}<br><a href='https://github.com/AbsentPopcorn33/Scenexe2Server'>Server Mod By AbsentPopcorn33</body>`)</script>"
           ));
-    },
-    certs =
-      typeof args.certs !== "undefined" ||
-      (args.certReq === true && args.certReq !== "undefined")
-        ? args.certs
-        : fs.existsSync("./certs//secret.cer") &&
-          fs.existsSync("./certs//secret.key")
-        ? {
-            cert: fs.readFileSync("./certs//secret.cer"),
-            key: fs.readFileSync("./certs//secret.key"),
+    };
+  certs =
+    typeof args.certs !== "undefined" ||
+    (args.certReq === true && args.certReq !== "undefined")
+      ? args.certs
+      : fs.existsSync("./certs//secret.cert") &&
+        fs.existsSync("./certs//secret.key")
+      ? {
+          cert: fs.readFileSync("./certs//secret.cert"),
+          key: fs.readFileSync("./certs//secret.key"),
+        }
+      : (!fs.existsSync("./certs") ? fs.mkdirSync("./certs") : "",
+        selfsigned.generate(
+          [
+            { name: "commonName", value: "localhost" },
+            { shortName: "OU", value: "Custom Scenexe2 Server" },
+            { shortName: "O", value: "AbsentPopcorn33" },
+          ],
+          {
+            keySize: 4096,
+            days: 3650,
+            algorithm: "sha256",
+            extensions: [{ name: "basicConstraints", cA: true }],
+          },
+          function (err, pems) {
+            fs.writeFileSync("./certs//secret.cert", pems.cert);
+            fs.writeFileSync("./certs//secret.key", pems.private);
+            console.log("Server Restart Required");
+            process.exit();
           }
-        : (!fs.existsSync("./certs") ? fs.mkdirSync("./certs") : "",
-          selfsigned.generate(
-            [
-              { name: "commonName", value: "localhost" },
-              { shortName: "OU", value: "Custom Scenexe2 Server" },
-              { shortName: "O", value: "AbsentPopcorn33" },
-            ],
-            {
-              keySize: 4096,
-              days: 3650,
-              algorithm: "sha256",
-              extensions: [{ name: "basicConstraints", cA: true }],
-            },
-            function (err, pems) {
-              fs.writeFileSync("./certs//secret.cer", pems.cert);
-              fs.writeFileSync("./certs//secret.key", pems.private);
-              console.log("Server Restart Required");
-              process.exit();
-            }
-          )),
-    httpServer =
-      secret.key && secret.cer
-        ? http.createServer(
-            {
-              key: fs.readFileSync(secret.key),
-              cert: fs.readFileSync(secret.cer),
-            },
-            app
-          )
-        : http.createServer(certs, app);
+        ));
+  httpServer =
+    secret.key && secret.cert
+      ? http.createServer(
+          {
+            key: fs.readFileSync(secret.key),
+            cert: fs.readFileSync(secret.cert),
+          },
+          app
+        )
+      : http.createServer(certs, app);
   args.port >= 0 ? httpServer.listen(args.port) : httpServer.listen();
   let server = new WebSocketServer({ noServer: !0 });
   httpServer.on("upgrade", ($, e, t) => {
@@ -7616,15 +7630,12 @@ const main = function (tankData, args) {
                     : $.data.tank.chat(y);
                 }
               }
-              if (y.indexOf("/dim") != 0) {
-                console.log(
-                  '"' + $.data.tank.name + '"',
-                  $.data.tank.dim.name,
-                  "t" + $.data.tank.id,
-                  ":",
-                  y
-                );
-              }
+              console.log(
+                $.data.tank != false
+                  ? `"${$.data.tank.name}" t${$.data.tank.id} ${$.data.tank.dim.name}:`
+                  : "Unknown:",
+                y
+              );
             } else if ("typing" === n)
               $.data.tank && ($.data.tank.typing = !!t[1]);
             else if ("passive" === n)
